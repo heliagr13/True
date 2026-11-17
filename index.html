@@ -3479,7 +3479,7 @@ for(const id of ['3007:1095','3056:237']){const el=document.querySelector(`[data
 <style>
 html.fr-tilda-embed,html.fr-tilda-embed body{overflow:hidden!important}
 html.fr-tilda-embed #voice-popup-overlay{top:var(--fr-view-top,0px)!important;bottom:auto!important;height:var(--fr-view-height,100vh)!important}
-html.fr-tilda-embed #site-text-header{top:var(--fr-view-top,0px)!important}
+html.fr-tilda-embed #site-text-header{visibility:hidden!important;pointer-events:none!important;top:0!important}
 </style>
 <script id="five-rooms-auto-height">
 (() => {
@@ -3523,5 +3523,24 @@ html.fr-tilda-embed #site-text-header{top:var(--fr-view-top,0px)!important}
   send({type:'five-rooms:scroll',top:Math.max(0,target.getBoundingClientRect().top+scrollY-(header?.getBoundingClientRect().height||0)-16)});
  },true);
  schedule();
+})();
+</script>
+<script id="five-rooms-parent-menu">
+(() => {
+ if(parent===window)return;
+ const origin='https://trueducation.ru';
+ function sync(){parent.postMessage({type:'five-rooms:menu',expanded:document.body.classList.contains('full-story-active')},origin);}
+ new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+ addEventListener('message',event=>{
+  if(event.source!==parent||event.origin!==origin)return;
+  if(event.data?.type==='five-rooms:measure')sync();
+  if(event.data?.type!=='five-rooms:navigate')return;
+  const id=event.data.id;
+  if(!['section-1','section-4','section-9','section-7'].includes(id))return;
+  if(id!=='section-1'&&!document.body.classList.contains('full-story-active'))return;
+  const link=document.querySelector('#site-text-navigation a[href="#'+id+'"]');
+  if(link)link.click();
+ });
+ sync();
 })();
 </script></body></html>
